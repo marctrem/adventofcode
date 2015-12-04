@@ -1,7 +1,6 @@
 (ns day02.core
   (:require [clojure.math.combinatorics :as combo]
-            [clojure.string :as str])
-  (:gen-class))
+            [clojure.string :as str]))
 
 
 (defn find-paper-cost-for-row [row]
