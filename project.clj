@@ -3,6 +3,6 @@
   :url "http://adventofcode.com/"
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/math.combinatorics "0.1.1"]]
-  :main ^:skip-aot day02.core
+  :main ^:skip-aot day03.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
