@@ -29,7 +29,7 @@
 
 
 (defn part2 [input]
-  "Solves part one of day three."
+  "Solves part two of day three."
   (let [data (slurp input)
         initial-world {:houses-visited #{[0 0]}
                        :santa          {:x 0 :y 0}
