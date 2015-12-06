@@ -13,8 +13,7 @@
     (loop [in data floor 0]
       (if (= -1 floor)
         (println (- (count data) (count in)))
-        (let [_ (println (first in) floor)
-              next-floor ((case (first in)
+        (let [next-floor ((case (first in)
                             \( +
                             \) -) floor 1)]
           (recur (rest in) next-floor))))))
