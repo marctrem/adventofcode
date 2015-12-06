@@ -5,6 +5,6 @@
                  [org.clojure/core.async "0.2.374"]
                  [org.clojure/math.combinatorics "0.1.1"]
                  [commons-codec/commons-codec "1.10"]]
-  :main ^:skip-aot day06.core
+  :main ^:skip-aot day04.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
