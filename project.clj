@@ -4,7 +4,6 @@
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/core.async "0.2.374"]
                  [org.clojure/math.combinatorics "0.1.1"]
-                 [reagi "0.10.1" :exclusions [org.clojure/clojure]]
                  [commons-codec/commons-codec "1.10"]]
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})

@@ -1,7 +1,6 @@
 (ns day07.core
   (:require [clojure.string :as str]
-            [clojure.core.async :as async]
-            [reagi.core :as r]))
+            [clojure.core.async :as async]))
 
 (defn clamp16 [in]
   (bit-and in 0xFFFF))
@@ -11,8 +10,6 @@
 (def NOT (comp clamp16 bit-not))
 (def RSHIFT bit-shift-right)
 (def LSHIFT (comp clamp16 bit-shift-left))
-
-
 
 
 (defn evaluate-expr [wires expr lvl]
@@ -50,6 +47,5 @@
                             (recur)))))
 
     (println (evaluate-expr wires (get @wires wire) 0)))
-
 
   )
