@@ -9,41 +9,39 @@
   "Finds the smallest positive number that, once apended to the input, will produce a MD5 hash with n-zero-prefix leading zeros."
 
   (let [starting-bytes (take n-zero-prefix (repeat \0))]
+    ; Cloning an updated MessageDigest makes it take twice the time, interresting.
+
     (loop [i 1]
       (let [d (MessageDigest/getInstance "MD5")
             message (str input i)
             m (.digest d (.getBytes message))]
 
-        (when (-> i (mod 100000) (= 0))
-          (println message))
 
         (if (->> m
                  Hex/encodeHex
-                 (take 5)
+                 (take n-zero-prefix)
                  (= starting-bytes))
 
           (println i)
           (recur (inc' i)))))))
 
 
-(defn find-hash-range [starting-bytes input range-size sequence-number response]
+(defn find-hash-range [starting-bytes input range-size sequence-number response t]
   "Finds the smallest positive number that, once apended to the input, will produce a MD5 hash with n-zero-prefix leading zeros."
 
   (let [range-start (* range-size sequence-number)
-        sequence-range (range range-start (+ range-start range-size))
-        warmed-md (MessageDigest/getInstance "MD5")]
-    (.update warmed-md (.getBytes input))
+        sequence-range (range range-start (+ range-start range-size))]
 
-    (println range-start " - " (+ range-start range-size))
+    ;(println t range-start "-" (+ range-start range-size))
     (loop [range-to-try sequence-range]
       (when ((comp not empty?) range-to-try)
         (let [current-number (first range-to-try)
-              d (.clone warmed-md)
-              m (.digest d (.getBytes (str current-number)))]
+              d (MessageDigest/getInstance "MD5")
+              m (.digest d (.getBytes (str input current-number)))]
 
           (if (->> m
                    Hex/encodeHex
-                   (take 5)
+                   (take (count starting-bytes))
                    (= starting-bytes))
 
             (swap! response (fn [old] (if (or (zero? old)
@@ -53,27 +51,27 @@
             (recur (rest range-to-try))))))))
 
 
-(defn generic-multi [n-zero-prefix input starting-point]
+(defn generic-multi [n-zero-prefix starting-point input]
   "Finds the smallest positive number that, once apended to the input, will produce a MD5 hash with n-zero-prefix leading zeros."
 
   (let [starting-bytes (take n-zero-prefix (repeat \0))
-        range-size 100000
+        range-size 10000
         response (atom 0)
-        sequence-number-provider (async/chan 20)
-        nthreads (-> (Runtime/getRuntime) (.availableProcessors) (* 2))
+        sequence-number-provider (async/chan 100)
+        nthreads (-> (Runtime/getRuntime) (.availableProcessors))
         executors (Executors/newFixedThreadPool nthreads)
-        generator-thread (async/thread (loop [i (quot starting-point range-size)]
-                                         (if (zero? @response)
-                                           (do (async/>!! sequence-number-provider i)
-                                               (recur (inc' i)))
-                                           (async/close! sequence-number-provider))))
+        _ (async/thread (loop [i (quot starting-point range-size)]
+                          (if (zero? @response)
+                            (do (async/>!! sequence-number-provider i)
+                                (recur (inc' i)))
+                            (async/close! sequence-number-provider))))
 
         tasks (map (fn [t]
                      (fn []
                        (loop [sequence-number (async/<!! sequence-number-provider)]
                          (if ((comp not nil?) sequence-number)
                            (do
-                             (find-hash-range starting-bytes input range-size sequence-number response)
+                             (find-hash-range starting-bytes input range-size sequence-number response t)
                              (recur (async/<!! sequence-number-provider)))
                            (binding [*out* *err*]
                              (println "Exiting thread" t))))))
@@ -86,4 +84,4 @@
     (println "ANSWER IS" @response)))
 
 (def part1 (partial generic 5))
-(def part2 (partial generic 6))
+(def part2 (partial generic-multi 6 1))
