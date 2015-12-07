@@ -23,15 +23,17 @@
     (case (count spl-expr)
       1 (let [sym (get spl-expr 0)]
           (if (nil? (re-matches #"\d+" sym))
-            (evaluate-expr wires (get wires sym) (inc lvl))
+            (do
+              (let [res (evaluate-expr wires (get @wires sym) (inc lvl))]
+                (swap! wires (fn [old] (assoc old sym (str res))))
+                res))
             (Integer. sym)))
 
       2 (eval (list (symbol (get spl-expr 0)) (evaluate-expr wires (get spl-expr 1) (inc lvl))))
       3 (eval (list (symbol (get spl-expr 1)) (evaluate-expr wires (get spl-expr 0) (inc lvl)) (evaluate-expr wires (get spl-expr 2) (inc lvl)))))))
 
 
-(def part1
-  (memoize (fn [wire input]
+(defn part1 [wire input]
   "Solves part one of day seven."
   (let [data (slurp input)
         wires (atom {})
@@ -47,7 +49,7 @@
                             (swap! wires #(assoc % (last valu) (first valu)))
                             (recur)))))
 
+    (println (evaluate-expr wires (get @wires wire) 0)))
 
-    @wires
 
-    (evaluate-expr @wires (get @wires wire) 0)))))
+  )
