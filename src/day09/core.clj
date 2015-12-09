@@ -17,7 +17,7 @@
           {} (str/split-lines data)))
 
 (defn generic [goal-fn input]
-  "Solves part one of day nine."
+  "Solves both parts of day nine."
   (let [data (slurp input)
         routes (parse data)
         cities (set (concat (keys routes) (flatten (map keys (vals routes)))))]
