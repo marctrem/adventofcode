@@ -4,14 +4,16 @@
 
 (defn step [input]
   (let [pb (partition-by identity input)]
-    (str/join "" (reduce (fn [coll item] (-> coll
-                                             (conj (first (seq (char-array (str (count item))))))
-                                             (conj (first item))))
-                         [] pb))))
+    (reduce (fn [coll item] (-> coll
+                                (conj (-> (count item)
+                                          (+ (int \0))
+                                          char))
+                                (conj (first item))))
+            [] pb)))
 
 
 (defn generic [times input]
-  (count (reduce (fn [s _] (step s)) input (range times))))
+  (count (nth (iterate step (char-array input)) times)))
 
 
 (def part1 (partial generic 40))
